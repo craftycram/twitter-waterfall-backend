@@ -17,19 +17,18 @@ let currentTweet = {};
 
 function getCurrentTweet() {
     const params = {
-      q: 'from:NetworkChuck',
+      q: 'from:Asusrogde OR from:NetworkChuck',
       result_type: 'recent',
       count: 1
   } 
 
     Twitter.get('search/tweets', params, (err, data, _response) => {
+      if (!err && data) {
+        
         const tweets = data.statuses
+        currentTweet = tweets[0];
 
-        if (!err) {
-          
-          currentTweet = tweets[0];
-
-        }
+      }
     })
 }
 
