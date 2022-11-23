@@ -11,5 +11,11 @@
     },
     "author": "Marc Rufeis",
     "license": "ISC",
-    "comment": "created with the vscode Let's Hassel extension"
+    "comment": "created with the vscode Let's Hassel extension",
+    "dependencies": {
+        "cors": "^2.8.5",
+        "dotenv": "^16.0.3",
+        "express": "^4.18.2",
+        "twit": "^2.2.11"
+    }
 }
