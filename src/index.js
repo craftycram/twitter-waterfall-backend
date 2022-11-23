@@ -1,44 +1,38 @@
 require('dotenv').config();
-const Twit = require('twit');
+const { TwitterApi } = require('twitter-api-v2');
 const express = require('express');
 const cors = require('cors');
+
+const consumerClient = new TwitterApi({ appKey: process.env.API_KEY, appSecret: process.env.API_SECRET });
 
 const app = express();
 app.use(cors());
 app.use(express.json());
 
-const Twitter = new Twit({
-  consumer_key:         process.env.API_KEY,
-  consumer_secret:      process.env.API_SECRET,
-  app_only_auth:        true
-})
+const query = process.env.QUERY || 'from:davidbombal OR from:networkchuck';
 
-let currentTweet = {};
+async function start() {
+  const client = await consumerClient.appLogin()
 
-function getCurrentTweet() {
-    const params = {
-      q: 'from:Asusrogde OR from:NetworkChuck',
-      result_type: 'recent',
-      count: 1
-  } 
+  let currentTweet = {};
 
-    Twitter.get('search/tweets', params, (err, data, _response) => {
-      if (!err && data) {
-        
-        const tweets = data.statuses
-        currentTweet = tweets[0];
+  function getCurrentTweet() {
+      client.v2.search(query).then((response) => {
+        if (response) {
+          currentTweet = response.tweets[0];
+        }
+      })
+  }
 
-      }
-    })
+  getCurrentTweet();
+  setInterval(getCurrentTweet, 30 * 1000);
+
+  app.get('/', (_req, res) => {
+    res.status(200).send(currentTweet);
+  });
+
+  app.listen(process.env.PORT || 3000, () => {
+    console.log(`Server is running on port ${process.env.PORT || 3000}`);
+  });
 }
-
-getCurrentTweet();
-setInterval(getCurrentTweet, 30 * 1000);
-
-app.get('/', (_req, res) => {
-  res.status(200).send(currentTweet);
-});
-
-app.listen(process.env.PORT || 3000, () => {
-  console.log(`Server is running on port ${process.env.PORT || 3000}`);
-});
+start();
